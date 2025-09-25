@@ -7,8 +7,7 @@ from sqlalchemy import asc, desc
 from sqlalchemy.orm import Query
 from contextvars import ContextVar
 
-from app.models.sche_base import ResponseSchemaBase, MetadataSchema
-from app.models.response_code_enum import ResponseCodeEnum, get_message
+from app.models import ResponseSchemaBase, MetadataSchema, ResponseCodeEnum, get_message
 from app.helpers.exception_handler import CustomException
 
 T = TypeVar("T")
