@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+sqlalchemy
+fastapi_sqlalchemy
+starlette
+python-dotenv
+pydantic-settings
+typing-extensions
