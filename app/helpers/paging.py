@@ -5,10 +5,10 @@ from typing import Optional, Generic, Sequence, Type, TypeVar
 
 from sqlalchemy import asc, desc
 from sqlalchemy.orm import Query
-from pydantic.generics import GenericModel
 from contextvars import ContextVar
 
-from app.schemas.sche_base import ResponseSchemaBase, MetadataSchema
+from app.models.sche_base import ResponseSchemaBase, MetadataSchema
+from app.models.response_code_enum import ResponseCodeEnum, get_message
 from app.helpers.exception_handler import CustomException
 
 T = TypeVar("T")
@@ -24,7 +24,7 @@ class PaginationParams(BaseModel):
     order: Optional[str] = 'desc'
 
 
-class BasePage(ResponseSchemaBase, GenericModel, Generic[T], ABC):
+class BasePage(ResponseSchemaBase, BaseModel, Generic[T], ABC):
     data: Sequence[T]
 
     class Config:
@@ -53,8 +53,8 @@ PageType: ContextVar[Type[BasePage]] = ContextVar("PageType", default=Page)
 
 
 def paginate(model, query: Query, params: Optional[PaginationParams]) -> BasePage:
-    code = '200'
-    message = 'Success'
+    code = ResponseCodeEnum.SUCCESS
+    message = get_message(code)
 
     try:
         total = query.count()
