@@ -6,8 +6,8 @@ from app.models.user import User
 
 router = APIRouter()
 
-@router.get("", response_model=DataResponse[dict])
-async def get(user: User = Depends(get_current_user)):
+@router.get("", response_model=DataResponse[dict],dependencies=[Depends(get_current_user)])
+async def get():
     return DataResponse[dict](
         code=ResponseCodeEnum.SUCCESS,
         message=get_message(ResponseCodeEnum.SUCCESS),

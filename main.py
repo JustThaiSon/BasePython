@@ -9,7 +9,6 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
 from app.api.router.api_router import router
-from app.api.api_auth import router as auth_router
 from app.models import Base
 from app.db.base import engine
 from app.core.config import settings
@@ -56,7 +55,6 @@ def get_application() -> FastAPI:
     )
     application.add_middleware(DBSessionMiddleware, db_url=settings.DATABASE_URL)
     application.include_router(router, prefix=settings.API_PREFIX)
-    application.include_router(auth_router, prefix="/auth")
     application.add_exception_handler(CustomException, http_exception_handler)
     application.add_exception_handler(HTTPException, http_error_handler)
 
