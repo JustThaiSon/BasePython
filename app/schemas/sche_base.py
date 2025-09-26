@@ -12,10 +12,7 @@ class ResponseSchemaBase(BaseModel):
     @classmethod
     def custom_response(cls, code: str, lang: str = "en", data: Optional[T] = None):
         msg = get_message(code, lang)
-        resp = {"code": code, "message": msg}
-        if data is not None:
-            resp["data"] = data
-        return resp
+        return {"code": code, "message": msg, "data": data}
 
     @classmethod
     def success_response(cls, data: Optional[T] = None, lang: str = "en"):

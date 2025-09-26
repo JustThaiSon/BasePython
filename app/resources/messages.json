@@ -4,6 +4,11 @@
     "vi": "Thành công",
     "th": "สำเร็จ"
   },
+  "401": {
+    "en": "Missing Authorization header",
+    "vi": "Thiếu header xác thực",
+    "th": "ขาด Authorization header"
+  },
   "404": {
     "en": "Not found",
     "vi": "Không tìm thấy",
@@ -13,6 +18,20 @@
     "en": "Server error",
     "vi": "Lỗi hệ thống",
     "th": "ข้อผิดพลาดของเซิร์ฟเวอร์"
+  },
+  "990": {
+    "en": "System is under maintenance, please try again later",
+    "vi": "Hệ thống đang bảo trì, quý khách vui lòng thử lại sau",
+    "th": "ระบบอยู่ระหว่างการบำรุงรักษา กรุณาลองใหม่อีกครั้งภายหลัง"
+  },
+  "991": {
+    "en": "System is under maintenance, please try again later",
+    "vi": "Hệ thống đang bảo trì, quý khách vui lòng thử lại sau",
+    "th": "ระบบอยู่ระหว่างการบำรุงรักษา กรุณาลองใหม่อีกครั้งภายหลัง"
+  },
+  "992": {
+    "en": "An error occurred, please contact admin!",
+    "vi": "Có lỗi xảy ra, vui lòng liên hệ admin!",
+    "th": "เกิดข้อผิดพลาด กรุณาติดต่อผู้ดูแลระบบ!"
   }
 }
-

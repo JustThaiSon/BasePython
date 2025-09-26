@@ -72,6 +72,7 @@ def paginate(model, query: Query, params: Optional[PaginationParams]) -> BasePag
         )
 
     except Exception as e:
-        raise CustomException(http_code=500, code='500', message=str(e))
+        # Log nội bộ nếu cần: print(str(e)) hoặc logging
+        raise CustomException(http_code=500, code='500')
 
     return PageType.get().create(code, message, data, metadata)
