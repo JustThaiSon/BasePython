@@ -62,6 +62,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def get_password_hash(password: str) -> str:
-    # Bcrypt chỉ hỗ trợ tối đa 72 ký tự, cắt password nếu dài hơn
-    password = password[:72]
-    return pwd_context.hash(password)
+    # Bcrypt chỉ hỗ trợ tối đa 72 bytes, encode thành bytes và cắt nếu cần
+    password_bytes = password.encode('utf-8')[:72]
+    return pwd_context.hash(password_bytes)
