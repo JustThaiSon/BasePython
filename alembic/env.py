@@ -20,7 +20,6 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.core.config import settings
 from app.models import Base  # Import Base để Alembic nhận diện các model
-from  app.models.user import User
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

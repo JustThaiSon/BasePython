@@ -7,12 +7,18 @@ from starlette.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.router.api_router import router
 from app.models import Base
 from app.db.base import engine
 from app.core.config import settings
-from app.helpers.exception_handler import CustomException, http_exception_handler
+from app.helpers.exception_handler import (
+    validation_exception_handler,
+    sqlalchemy_exception_handler,
+    http_exception_handler, CustomException
+)
 from app.schemas.sche_base import ResponseSchemaBase
 from app.schemas.response_code_enum import ResponseCodeEnum, get_message
 
@@ -57,6 +63,9 @@ def get_application() -> FastAPI:
     application.include_router(router, prefix=settings.API_PREFIX)
     application.add_exception_handler(CustomException, http_exception_handler)
     application.add_exception_handler(HTTPException, http_error_handler)
+    application.add_exception_handler(RequestValidationError, validation_exception_handler)
+    application.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
+    application.add_exception_handler(Exception, http_exception_handler)
 
     return application
 

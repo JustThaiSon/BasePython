@@ -1,16 +1,16 @@
 from typing import Optional, TypeVar, Generic
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from app.schemas.response_code_enum import ResponseCodeEnum, get_message
 
 T = TypeVar("T")
 
 
 class ResponseSchemaBase(BaseModel):
-    code: str = ''
+    code: int = 0
     message: str = ''
 
     @classmethod
-    def custom_response(cls, code: str, lang: str = "en", data: Optional[T] = None):
+    def custom_response(cls, code: int, lang: str = "en", data: Optional[T] = None):
         msg = get_message(code, lang)
         return {"code": code, "message": msg, "data": data}
 
@@ -21,9 +21,7 @@ class ResponseSchemaBase(BaseModel):
 
 class DataResponse(ResponseSchemaBase, Generic[T]):
     data: Optional[T] = None
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True, from_attributes=True)
 
 
 class MetadataSchema(BaseModel):

@@ -9,7 +9,7 @@ from contextvars import ContextVar
 
 from app.schemas.sche_base import ResponseSchemaBase, MetadataSchema
 from app.schemas.response_code_enum import ResponseCodeEnum, get_message
-from app.helpers.exception_handler import CustomException
+from app.helpers.exception_handler
 
 T = TypeVar("T")
 C = TypeVar("C")
@@ -32,7 +32,7 @@ class BasePage(ResponseSchemaBase, BaseModel, Generic[T], ABC):
 
     @classmethod
     @abstractmethod
-    def create(cls: Type[C], code: str, message: str, data: Sequence[T], metadata: MetadataSchema) -> C:
+    def create(cls: Type[C], code: int, message: str, data: Sequence[T], metadata: MetadataSchema) -> C:
         pass  # pragma: no cover
 
 
@@ -40,7 +40,7 @@ class Page(BasePage[T], Generic[T]):
     metadata: MetadataSchema
 
     @classmethod
-    def create(cls, code: str, message: str, data: Sequence[T], metadata: MetadataSchema) -> "Page[T]":
+    def create(cls, code: int, message: str, data: Sequence[T], metadata: MetadataSchema) -> "Page[T]":
         return cls(
             code=code,
             message=message,
@@ -72,7 +72,7 @@ def paginate(model, query: Query, params: Optional[PaginationParams]) -> BasePag
         )
 
     except Exception as e:
-        # Log nội bộ nếu cần: print(str(e)) hoặc logging
-        raise CustomException(http_code=500, code='500')
+        logger.error(f"Error in pagination: {str(e)}")
+        raise CustomException(http_code=500, code=ResponseCodeEnum.SERVER_ERROR)
 
     return PageType.get().create(code, message, data, metadata)
