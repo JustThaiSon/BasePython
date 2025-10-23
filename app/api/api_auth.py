@@ -20,7 +20,7 @@ def register(register_data: RegisterRequest, db: Session = Depends(get_db)):
     return DataResponse[dict](
         code=ResponseCodeEnum.SUCCESS,
         message=get_message(ResponseCodeEnum.SUCCESS),
-        data=None  # optional
+        data=None
     )
 
 

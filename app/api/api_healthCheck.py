@@ -13,3 +13,7 @@ async def get():
         message=get_message(ResponseCodeEnum.SUCCESS),
         data={"status": "ok"},
     )
+
+@router.get("/test")
+def test_endpoint():
+    raise ValueError("Test lỗi hệ thống")

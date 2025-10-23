@@ -11,6 +11,7 @@ from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.router.api_router import router
+from app.middleware.error_handler import ExceptionMiddleware
 from app.models import Base
 from app.db.base import engine
 from app.core.config import settings
@@ -46,10 +47,6 @@ def get_application() -> FastAPI:
         description='''
         Base frame with FastAPI micro framework + Postgresql
             - Login/Register with JWT
-            - Permission
-            - CRUD User
-            - Unit testing with Pytest
-            - Dockerize
         '''
     )
     application.add_middleware(
@@ -66,7 +63,7 @@ def get_application() -> FastAPI:
     application.add_exception_handler(RequestValidationError, validation_exception_handler)
     application.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
     application.add_exception_handler(Exception, http_exception_handler)
-
+    application.add_middleware(ExceptionMiddleware)
     return application
 
 
@@ -97,4 +94,4 @@ def custom_openapi():
 app = get_application()
 app.openapi = custom_openapi
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=9090)

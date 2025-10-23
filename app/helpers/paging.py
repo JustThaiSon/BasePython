@@ -9,7 +9,7 @@ from contextvars import ContextVar
 
 from app.schemas.sche_base import ResponseSchemaBase, MetadataSchema
 from app.schemas.response_code_enum import ResponseCodeEnum, get_message
-from app.helpers.exception_handler
+from app.helpers.exception_handler CustomException
 
 T = TypeVar("T")
 C = TypeVar("C")
