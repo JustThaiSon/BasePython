@@ -1,5 +1,6 @@
 import logging.config
-
+import os
+import sys
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi_sqlalchemy import DBSessionMiddleware
@@ -18,15 +19,42 @@ from app.core.config import settings
 from app.helpers.exception_handler import (
     validation_exception_handler,
     sqlalchemy_exception_handler,
-    http_exception_handler, CustomException
+    http_exception_handler,
+    CustomException
 )
 from app.schemas.sche_base import ResponseSchemaBase
-from app.schemas.response_code_enum import ResponseCodeEnum, get_message
+from app.schemas.response_code_enum import get_message
 
-logging.config.fileConfig(settings.LOGGING_CONFIG_FILE, disable_existing_loggers=False)
+
+# ---------------------- LOGGING ----------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+log_dir = os.path.join(BASE_DIR, "logs")
+os.makedirs(log_dir, exist_ok=True)
+
+# Tạo logging configuration programmatically để tránh escape sequence issues
+log_file = os.path.join(log_dir, "app.log")
+if not os.path.exists(log_file):
+    open(log_file, "a").close()  # tạo file rỗng nếu chưa có
+
+# Configure logging programmatically
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(log_file, mode='a', encoding='utf-8')
+    ]
+)
+
+logger = logging.getLogger("myapp")
+logger.info("✅ Logging system initialized!")
+
+
+# ---------------------- DATABASE INIT ----------------------
 Base.metadata.create_all(bind=engine)
 
 
+# ---------------------- HANDLERS ----------------------
 def http_error_handler(request: Request, exc: HTTPException):
     code = str(exc.status_code)
     lang = getattr(request, 'lang', 'en')
@@ -40,34 +68,49 @@ def http_error_handler(request: Request, exc: HTTPException):
     )
 
 
-def get_application() -> FastAPI:
-    application = FastAPI(
-        title=settings.PROJECT_NAME, docs_url="/docs", redoc_url='/re-docs',
+# ---------------------- APP FACTORY ----------------------
+def create_application() -> FastAPI:
+    app = FastAPI(
+        title=settings.PROJECT_NAME,
+        docs_url="/docs",
+        redoc_url="/re-docs",
         openapi_url=f"{settings.API_PREFIX}/openapi.json",
         description='''
-        Base frame with FastAPI micro framework + Postgresql
-            - Login/Register with JWT
+        Base frame with FastAPI micro framework + PostgreSQL
+        - Login/Register with JWT
         '''
     )
-    application.add_middleware(
+
+    # Middleware CORS
+    app.add_middleware(
         CORSMiddleware,
         allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    application.add_middleware(DBSessionMiddleware, db_url=settings.DATABASE_URL)
-    application.include_router(router, prefix=settings.API_PREFIX)
-    application.add_exception_handler(CustomException, http_exception_handler)
-    application.add_exception_handler(HTTPException, http_error_handler)
-    application.add_exception_handler(RequestValidationError, validation_exception_handler)
-    application.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
-    application.add_exception_handler(Exception, http_exception_handler)
-    application.add_middleware(ExceptionMiddleware)
-    return application
+
+    # Middleware DB
+    app.add_middleware(DBSessionMiddleware, db_url=settings.DATABASE_URL)
+
+    # Middleware xử lý exception
+    app.add_middleware(ExceptionMiddleware)
+
+    # Routers
+    app.include_router(router, prefix=settings.API_PREFIX)
+
+    # Exception handlers
+    app.add_exception_handler(CustomException, http_exception_handler)
+    app.add_exception_handler(HTTPException, http_error_handler)
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)
+    app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
+    app.add_exception_handler(Exception, http_error_handler)
+
+    return app
 
 
-def custom_openapi():
+# ---------------------- OPENAPI CUSTOM ----------------------
+def custom_openapi(app: FastAPI):
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
@@ -91,7 +134,12 @@ def custom_openapi():
     return app.openapi_schema
 
 
-app = get_application()
-app.openapi = custom_openapi
-if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=9090)
+# ---------------------- APP INSTANCE ----------------------
+app = create_application()
+app.openapi = lambda: custom_openapi(app)
+
+
+# ---------------------- RUN SERVER ----------------------
+if __name__ == "__main__":
+    logger.info("🚀 Starting FastAPI server...")
+    uvicorn.run(app, host="0.0.0.0", port=9999)
